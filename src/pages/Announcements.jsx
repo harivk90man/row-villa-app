@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabase';
-import { isBoardMember as isAdmin, logout } from '../utils/auth';
-import { Link } from 'react-router-dom';
+import { isBoardMember as isAdmin } from '../utils/auth';
 
 const Announcements = () => {
   const [announcements, setAnnouncements] = useState([]);
@@ -34,7 +33,6 @@ const Announcements = () => {
     if (!message) return;
 
     const payload = { message };
-
     let error;
     if (editId) {
       ({ error } = await supabase.from('announcements').update(payload).eq('id', editId));
@@ -61,68 +59,73 @@ const Announcements = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      {/* Navigation */}
-      <nav className="bg-white shadow-md rounded px-6 py-4 mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-indigo-600">Announcements</h1>
-
+    <div className="min-h-screen bg-gray-100 p-4 sm:p-6">
+      {/* Header */}
+      <nav className="bg-white shadow-md rounded px-4 sm:px-6 py-3 sm:py-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <h1 className="text-xl sm:text-2xl font-bold text-purple-700 mb-2 sm:mb-0">Announcements</h1>
       </nav>
 
-      {/* Read-only notice */}
+      {/* Read-only message */}
       {!isWritable && (
         <div className="text-center text-gray-600 italic mb-4">
           Read-only access. Only board members can manage announcements.
         </div>
       )}
 
-      {/* Form */}
+      {/* Announcement Form */}
       {isWritable && (
-        <div className="bg-white p-6 rounded shadow-md mb-6">
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
+        <div className="bg-white p-4 sm:p-6 rounded shadow-md mb-6">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
               placeholder="Enter announcement"
-              className="border px-3 py-2 rounded"
+              className="border px-3 py-2 rounded resize-none"
               required
             />
-            <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded w-full">
+            <button type="submit" className="bg-purple-700 text-white px-4 py-2 rounded">
               {editId ? 'Update Announcement' : 'Add Announcement'}
             </button>
           </form>
         </div>
       )}
 
-      {/* Table */}
-      <div className="bg-white p-6 rounded shadow-md overflow-x-auto">
-        <h2 className="text-xl font-semibold mb-4">All Announcements</h2>
-        <table className="min-w-full table-auto text-sm">
+      {/* Announcements Table */}
+      <div className="bg-white p-4 sm:p-6 rounded shadow-md overflow-x-auto">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4">All Announcements</h2>
+        <table className="min-w-full text-sm border-collapse">
           <thead className="bg-gray-200">
             <tr>
-              <th className="px-4 py-2">Message</th>
-              <th className="px-4 py-2">Date</th>
-              {isWritable && <th className="px-4 py-2">Actions</th>}
+              <th className="px-4 py-2 text-left">Message</th>
+              <th className="px-4 py-2 text-left">Date</th>
+              {isWritable && <th className="px-4 py-2 text-left">Actions</th>}
             </tr>
           </thead>
           <tbody>
             {announcements.length === 0 ? (
               <tr>
-                <td colSpan="3" className="text-center text-gray-500 italic py-4">No announcements yet.</td>
+                <td colSpan={isWritable ? 3 : 2} className="text-center text-gray-500 italic py-4">
+                  No announcements yet.
+                </td>
               </tr>
             ) : (
               announcements.map((ann) => (
                 <tr key={ann.id} className="border-t">
                   <td className="px-4 py-2">{ann.message}</td>
-                  <td className="px-4 py-2">
-                    {new Date(ann.created_at).toLocaleString()}
-                  </td>
+                  <td className="px-4 py-2">{new Date(ann.created_at).toLocaleString()}</td>
                   {isWritable && (
                     <td className="px-4 py-2 space-x-2">
-                      <button onClick={() => handleEdit(ann)} className="text-blue-500 hover:underline">
+                      <button
+                        onClick={() => handleEdit(ann)}
+                        className="text-blue-600 hover:underline"
+                      >
                         Edit
                       </button>
-                      <button onClick={() => handleDelete(ann.id)} className="text-red-500 hover:underline">
+                      <button
+                        onClick={() => handleDelete(ann.id)}
+                        className="text-red-600 hover:underline"
+                      >
                         Delete
                       </button>
                     </td>

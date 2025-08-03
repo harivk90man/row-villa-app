@@ -83,18 +83,20 @@ const Payments = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
       <div className="bg-white p-4 rounded shadow mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-purple-700">Payments</h1>
-
       </div>
 
       {isWritable && (
-        <form onSubmit={handleAddPayment} className="bg-white p-4 rounded shadow mb-6 grid grid-cols-5 gap-4">
+        <form
+          onSubmit={handleAddPayment}
+          className="bg-white p-4 rounded shadow mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4"
+        >
           <select
             value={selectedVilla}
             onChange={(e) => setSelectedVilla(e.target.value)}
-            className="form-select border p-2 rounded col-span-1"
+            className="border p-2 rounded col-span-1"
           >
             <option value="">Select Villa</option>
             {villaList.map((villa) => (
@@ -108,7 +110,8 @@ const Payments = () => {
             type="month"
             value={paymentMonth}
             onChange={(e) => setPaymentMonth(e.target.value)}
-            className="border p-2 rounded col-span-1"
+            className="border p-2 rounded"
+            placeholder="Month"
           />
 
           <input
@@ -116,7 +119,7 @@ const Payments = () => {
             placeholder="Amount"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="border p-2 rounded col-span-1"
+            className="border p-2 rounded"
           />
 
           <input
@@ -124,7 +127,7 @@ const Payments = () => {
             placeholder="Mode (Cash/UPI/Bank)"
             value={mode}
             onChange={(e) => setMode(e.target.value)}
-            className="border p-2 rounded col-span-1"
+            className="border p-2 rounded"
           />
 
           <input
@@ -132,19 +135,19 @@ const Payments = () => {
             placeholder="Remarks"
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
-            className="border p-2 rounded col-span-1"
+            className="border p-2 rounded"
           />
 
-          <button type="submit" className="bg-purple-600 text-white rounded p-2 col-span-5">
+          <button type="submit" className="bg-purple-600 text-white rounded p-2 col-span-1 sm:col-span-2 md:col-span-5">
             Add
           </button>
         </form>
       )}
 
-      <div className="bg-white p-4 rounded shadow">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-200">
+      <div className="bg-white p-4 rounded shadow overflow-x-auto">
+        <table className="min-w-full text-sm border-collapse">
+          <thead className="bg-gray-200 text-gray-700">
+            <tr>
               <th className="p-2 border">Villa</th>
               <th className="p-2 border">Month</th>
               <th className="p-2 border">Amount</th>
@@ -157,19 +160,23 @@ const Payments = () => {
           <tbody>
             {payments.length === 0 ? (
               <tr>
-                <td colSpan="7" className="text-center p-4 italic text-gray-500">No payments found.</td>
+                <td colSpan="7" className="text-center p-4 italic text-gray-500">
+                  No payments found.
+                </td>
               </tr>
             ) : (
               payments.map((p) => (
-                <tr key={p.id}>
-                  <td className="p-2 border">{getVillaDisplay(p.villa_id)}</td>
-                  <td className="p-2 border">{p.month}</td>
-                  <td className="p-2 border">{p.amount}</td>
-                  <td className="p-2 border">{p.mode}</td>
-                  <td className="p-2 border">{p.remarks}</td>
-                  <td className="p-2 border">{new Date(p.created_at).toLocaleDateString()}</td>
+                <tr key={p.id} className="border-t">
+                  <td className="p-2 border text-left">{getVillaDisplay(p.villa_id)}</td>
+                  <td className="p-2 border text-center">{p.month}</td>
+                  <td className="p-2 border text-center">{p.amount}</td>
+                  <td className="p-2 border text-center">{p.mode}</td>
+                  <td className="p-2 border text-center">{p.remarks}</td>
+                  <td className="p-2 border text-center">
+                    {new Date(p.created_at).toLocaleDateString()}
+                  </td>
                   {isWritable && (
-                    <td className="p-2 border">
+                    <td className="p-2 border text-center">
                       <button
                         className="text-red-600 hover:underline"
                         onClick={() => handleDelete(p.id)}

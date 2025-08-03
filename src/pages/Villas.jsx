@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabase';
-import { Link } from 'react-router-dom';
-import { isBoardMember, logout } from '../utils/auth';
+import { isBoardMember } from '../utils/auth';
 
 const Villas = () => {
   const [villas, setVillas] = useState([]);
@@ -86,8 +85,7 @@ const Villas = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <nav className="bg-white shadow-md rounded px-6 py-4 mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-indigo-600">Villa Onwer's Management</h1>
-        
+        <h1 className="text-2xl font-bold text-purple-700">Villa Owner's Management</h1>
       </nav>
 
       {!isWritable && (
@@ -141,7 +139,7 @@ const Villas = () => {
               Board Member
             </label>
             <div className="flex gap-4">
-              <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded w-full">
+              <button type="submit" className="bg-purple-600 text-white px-4 py-2 rounded w-full">
                 {editId ? 'Update Villa' : 'Add Villa'}
               </button>
               {editId && (
@@ -163,35 +161,47 @@ const Villas = () => {
         <table className="min-w-full table-auto text-sm">
           <thead className="bg-gray-200">
             <tr>
-              <th className="px-4 py-2">Villa No</th>
-              <th className="px-4 py-2">Owner</th>
-              <th className="px-4 py-2">Email</th>
-              <th className="px-4 py-2">Phone</th>
-              <th className="px-4 py-2">Board Member</th>
-              {isWritable && <th className="px-4 py-2">Actions</th>}
+              <th className="px-4 py-2 text-left">Villa No</th>
+              <th className="px-4 py-2 text-center">Owner</th>
+              <th className="px-4 py-2 text-center">Email</th>
+              <th className="px-4 py-2 text-center">Phone</th>
+              <th className="px-4 py-2 text-center">Board Member</th>
+              {isWritable && <th className="px-4 py-2 text-center">Actions</th>}
             </tr>
           </thead>
           <tbody>
             {villas.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center text-gray-500 italic py-4">No villas found.</td>
+                <td colSpan="6" className="text-center text-gray-500 italic py-4">
+                  No villas found.
+                </td>
               </tr>
             ) : (
               villas.map((villa) => (
                 <tr key={villa.id} className="border-t">
-                  <td className="px-4 py-2">{villa.villaNo}</td>
-                  <td className="px-4 py-2">{villa.ownerName}</td>
-                  <td className="px-4 py-2">{villa.email}</td>
-                  <td className="px-4 py-2">{villa.phone}</td>
-                  <td className="px-4 py-2">{villa.isBoardMember ? 'Yes' : 'No'}</td>
+                  <td className="px-4 py-3 text-left align-middle">{villa.villaNo}</td>
+                  <td className="px-4 py-3 text-center align-middle">{villa.ownerName}</td>
+                  <td className="px-4 py-3 text-center align-middle">{villa.email}</td>
+                  <td className="px-4 py-3 text-center align-middle">{villa.phone}</td>
+                  <td className="px-4 py-3 text-center align-middle">
+                    {villa.isBoardMember ? 'Yes' : 'No'}
+                  </td>
                   {isWritable && (
-                    <td className="px-4 py-2 space-x-2">
-                      <button onClick={() => handleEdit(villa)} className="text-blue-500 hover:underline">
-                        Edit
-                      </button>
-                      <button onClick={() => handleDelete(villa.id)} className="text-red-500 hover:underline">
-                        Delete
-                      </button>
+                    <td className="px-4 py-3 text-center align-middle">
+                      <div className="flex justify-center gap-2 flex-wrap">
+                        <button
+                          onClick={() => handleEdit(villa)}
+                          className="text-blue-500 hover:underline"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(villa.id)}
+                          className="text-red-500 hover:underline"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   )}
                 </tr>
