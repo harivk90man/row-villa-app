@@ -69,13 +69,7 @@ const Complaints = () => {
     <div className="min-h-screen bg-gray-100 p-6">
       <nav className="bg-white shadow-md rounded px-6 py-4 mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-indigo-600">Complaints</h1>
-        <div className="space-x-4">
-          <Link to="/" className="text-blue-500 hover:text-blue-700">Dashboard</Link>
-          <Link to="/villas" className="text-blue-500 hover:text-blue-700">Villas</Link>
-          <Link to="/payments" className="text-blue-500 hover:text-blue-700">Payments</Link>
-          <Link to="/announcements" className="text-blue-500 hover:text-blue-700">Announcements</Link>
-          <button onClick={logout} className="ml-4 text-red-600 font-semibold">Logout</button>
-        </div>
+        
       </nav>
 
       {!isWritable && (

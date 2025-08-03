@@ -86,13 +86,7 @@ const Payments = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="bg-white p-4 rounded shadow mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-purple-700">Payments</h1>
-        <div className="space-x-4">
-          <Link to="/" className="text-blue-600 hover:underline">Dashboard</Link>
-          <Link to="/villas" className="text-blue-600 hover:underline">Villas</Link>
-          <Link to="/complaints" className="text-blue-600 hover:underline">Complaints</Link>
-          <Link to="/announcements" className="text-blue-600 hover:underline">Announcements</Link>
-          <button onClick={logout} className="text-red-600 hover:underline font-semibold">Logout</button>
-        </div>
+
       </div>
 
       {isWritable && (

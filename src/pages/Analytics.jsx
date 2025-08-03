@@ -1,95 +1,98 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabase';
-import { Link } from 'react-router-dom';
-import { logout } from '../utils/auth';
+import PaymentsByMonthChart from './components/PaymentsByMonthChart';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 const Analytics = () => {
-  const [summary, setSummary] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [payments, setPayments] = useState([]);
+  const [villas, setVillas] = useState([]);
+  const [selectedVillaId, setSelectedVillaId] = useState('');
+  const [missedMonths, setMissedMonths] = useState([]);
 
   useEffect(() => {
-    fetchSummary();
+    fetchPayments();
+    fetchVillas();
   }, []);
 
-  const fetchSummary = async () => {
-    const { data, error } = await supabase
-      .from('payments')
-      .select('villa_id, month, villas(villaNo)');
+  const fetchPayments = async () => {
+    const { data, error } = await supabase.from('payments').select('*');
+    if (!error) setPayments(data);
+    else console.error('Error fetching payments:', error);
+  };
 
-    if (error) {
-      console.error('Error fetching analytics:', error.message);
-      setLoading(false);
-      return;
-    }
+  const fetchVillas = async () => {
+    const { data, error } = await supabase.from('villas').select('*');
+    if (!error) setVillas(data);
+    else console.error('Error fetching villas:', error);
+  };
 
-    // Group by month and villa
-    const grouped = {};
-    data.forEach(({ villa_id, month, villas }) => {
-      if (!grouped[month]) grouped[month] = {};
-      grouped[month][villas?.villaNo] = true; // paid = true
-    });
+  const handleVillaChange = (e) => {
+    const villaId = e.target.value;
+    setSelectedVillaId(villaId);
+    calculateMissedMonths(villaId);
+  };
 
-    // Get all villa numbers from villas table
-    const { data: villasData } = await supabase.from('villas').select('villaNo');
-    const allVillas = villasData.map(v => v.villaNo).sort((a, b) => a - b);
+  const calculateMissedMonths = (villaId) => {
+    const allMonths = [...new Set(payments.map(p => p.month))];
 
-    // Create final display structure
-    const finalSummary = Object.entries(grouped).map(([month, paidMap]) => {
-      const monthRow = { month };
-      allVillas.forEach(v => {
-        monthRow[v] = paidMap[v] ? '✅' : '❌';
+    const paidMonths = payments
+      .filter(p => String(p.villa_id) === String(villaId)) // ✅ Fixed type mismatch
+      .map(p => p.month);
+
+    const missed = allMonths.filter(m => !paidMonths.includes(m));
+    const formatted = missed
+      .map(m => ({ month: m, missed: 1 }))
+      .sort((a, b) => new Date(a.month) - new Date(b.month)); // 📅 Optional: sort months
+
+    setMissedMonths(formatted);
+  };
+
+  const handlePieClick = (month) => {
+    const paidVillas = payments
+      .filter(p => p.month === month)
+      .map(p => {
+        const villa = villas.find(v => v.id === p.villa_id);
+        return villa ? villa.villaNo : `Villa ${p.villa_id}`;
       });
-      return monthRow;
-    });
 
-    setSummary(finalSummary);
-    setLoading(false);
+    alert(`Villas paid in ${month}: ${paidVillas.join(', ')}`);
   };
 
   return (
-    <div className="p-8">
-      <nav className="bg-white shadow-md rounded px-6 py-4 mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-indigo-600">Payment Analytics</h1>
-        <div className="space-x-4">
-          <Link to="/" className="text-blue-500 hover:text-blue-700">Dashboard</Link>
-          <Link to="/villas" className="text-blue-500 hover:text-blue-700">Villas</Link>
-          <Link to="/payments" className="text-blue-500 hover:text-blue-700">Payments</Link>
-          <Link to="/complaints" className="text-blue-500 hover:text-blue-700">Complaints</Link>
-        </div>
-      </nav>
+    <div style={{ padding: '20px' }}>
+      <h2 style={{ color: 'purple' }}>Payments by Month - 2025</h2>
 
-      {loading ? (
-        <div className="text-center text-gray-500">Loading analytics...</div>
-      ) : (
-        <div className="overflow-x-auto bg-white shadow rounded">
-          <table className="min-w-full table-auto text-sm">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="px-4 py-2">Month</th>
-                {summary.length > 0 &&
-                  Object.keys(summary[0])
-                    .filter(k => k !== 'month')
-                    .map(v => (
-                      <th key={v} className="px-2 py-2 text-center">Villa {v}</th>
-                    ))}
-              </tr>
-            </thead>
-            <tbody>
-              {summary.map((row, i) => (
-                <tr key={i} className="border-t">
-                  <td className="px-4 py-2 font-semibold">{row.month}</td>
-                  {Object.entries(row)
-                    .filter(([k]) => k !== 'month')
-                    .map(([villa, status]) => (
-                      <td key={villa} className="px-2 py-2 text-center">
-                        {status}
-                      </td>
-                    ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <PaymentsByMonthChart payments={payments} onMonthClick={handlePieClick} />
+
+      <hr />
+
+      <h2 style={{ color: 'purple' }}>Missed Payments by Villa</h2>
+      <label>Select a Villa: </label>
+      <select value={selectedVillaId} onChange={handleVillaChange}>
+        <option value="">-- Select --</option>
+        {villas.map((v) => (
+          <option key={v.id} value={v.id}>
+            {v.villaNo}
+          </option>
+        ))}
+      </select>
+
+      {selectedVillaId && missedMonths.length > 0 && (
+        <ResponsiveContainer width="90%" height={300}>
+          <BarChart data={missedMonths}>
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="missed" fill="#ff4d4f" />
+          </BarChart>
+        </ResponsiveContainer>
       )}
     </div>
   );

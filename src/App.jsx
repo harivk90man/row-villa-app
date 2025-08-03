@@ -6,7 +6,10 @@ import Dashboard from './pages/Dashboard';
 import Villas from './pages/Villas';
 import Payments from './pages/Payments';
 import Analytics from './pages/Analytics';
+import Announcements from './pages/Announcements';
+import Complaints from './pages/Complaints';
 import ProtectedRoute from './pages/components/ProtectedRoute';
+import Layout from './pages/components/Layout';
 
 const App = () => {
   return (
@@ -18,36 +21,56 @@ const App = () => {
           path="/"
           element={
             <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/villas"
-          element={
-            <ProtectedRoute>
-              <Villas />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/payments"
-          element={
-            <ProtectedRoute>
-              <Payments />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/analytics"
-          element={
-            <ProtectedRoute>
-              <Analytics />
+              <Layout><Dashboard /></Layout>
             </ProtectedRoute>
           }
         />
 
-        {/* Catch-all redirect to login */}
+        <Route
+          path="/villas"
+          element={
+            <ProtectedRoute>
+              <Layout><Villas /></Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/payments"
+          element={
+            <ProtectedRoute>
+              <Layout><Payments /></Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <Layout><Analytics /></Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/announcements"
+          element={
+            <ProtectedRoute>
+              <Layout><Announcements /></Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/complaints"
+          element={
+            <ProtectedRoute>
+              <Layout><Complaints /></Layout>
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
