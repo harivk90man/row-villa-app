@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Ashirvadh</string>
+    <string name="title_activity_main">Ashirvadh</string>
+    <string name="package_name">com.hari.test</string>
+    <string name="custom_url_scheme">com.hari.test</string>
+</resources>

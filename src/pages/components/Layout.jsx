@@ -24,6 +24,7 @@ const Layout = ({ children }) => {
 
         {/* Desktop Menu */}
         <div className="hidden sm:flex space-x-4">
+          <Link to="/account">Account</Link>
           <Link to="/villas">Villas</Link>
           <Link to="/payments">Payments</Link>
           <Link to="/analytics">Analytics</Link>
@@ -36,6 +37,7 @@ const Layout = ({ children }) => {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="sm:hidden bg-white shadow-md flex flex-col items-start p-4 space-y-2">
+          <Link to="/account" onClick={toggleMenu}>Account</Link>
           <Link to="/villas" onClick={toggleMenu}>Villas</Link>
           <Link to="/payments" onClick={toggleMenu}>Payments</Link>
           <Link to="/analytics" onClick={toggleMenu}>Analytics</Link>

@@ -10,6 +10,7 @@ import Announcements from './pages/Announcements';
 import Complaints from './pages/Complaints';
 import ProtectedRoute from './pages/components/ProtectedRoute';
 import Layout from './pages/components/Layout';
+import AssociationAccount from './pages/AssociationAccount'; 
 
 const App = () => {
   return (
@@ -21,10 +22,19 @@ const App = () => {
           path="/"
           element={
             <ProtectedRoute>
-              <Layout><Dashboard /></Layout>
+              <Layout><AssociationAccount /></Layout>
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/account"
+          element={
+            <ProtectedRoute>
+              <Layout><AssociationAccount /></Layout>
+            </ProtectedRoute>
+          }
+        />
+
 
         <Route
           path="/villas"
