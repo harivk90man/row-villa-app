@@ -15,6 +15,9 @@ const Analytics = () => {
   const [villas, setVillas] = useState([]);
   const [selectedVillaId, setSelectedVillaId] = useState('');
   const [missedMonths, setMissedMonths] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [paidVillas, setPaidVillas] = useState([]);
+  const [unpaidVillas, setUnpaidVillas] = useState([]);
 
   useEffect(() => {
     fetchPayments();
@@ -55,25 +58,60 @@ const Analytics = () => {
   };
 
   const handlePieClick = (month) => {
-    if (!payments.length || !villas.length) return;
+    setSelectedMonth(month);
 
-    const paidInMonth = payments.filter(p => p.month === month);
+    const paid = payments.filter(p => p.month === month).map(p => p.villa_id);
 
-    const paidVillas = paidInMonth.map(p => {
-      const villa = villas.find(v => String(v.id) === String(p.villa_id));
-      return villa?.villaNo || `Villa ${p.villa_id}`;
-    });
+    const paidVillaList = villas.filter(v => paid.includes(v.id));
+    const unpaidVillaList = villas.filter(v => !paid.includes(v.id));
 
-    alert(`Villas paid in ${month}:\n${paidVillas.join(', ')}`);
+    setPaidVillas(paidVillaList);
+    setUnpaidVillas(unpaidVillaList);
   };
 
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
-      <h2 className="text-xl sm:text-2xl font-bold text-purple-700 mb-4">Payments by Month - 2025</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-purple-700 mb-4">
+        Payments by Month - 2025
+      </h2>
 
       {payments.length > 0 && villas.length > 0 && (
         <div className="bg-white p-4 rounded shadow mb-6">
-          <PaymentsByMonthChart payments={payments} onMonthClick={handlePieClick} />
+          <PaymentsByMonthChart
+            payments={payments}
+            villas={villas}
+            onMonthClick={handlePieClick}
+          />
+        </div>
+      )}
+
+      {selectedMonth && (
+        <div className="bg-white p-4 rounded shadow mb-6">
+          <h3 className="text-lg font-semibold mb-2 text-purple-700">
+            Detailed View for {selectedMonth}
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold text-green-600 mb-2">✅ Villas Paid:</h4>
+              <ul className="list-disc pl-6">
+                {paidVillas.map((v) => (
+                  <li key={v.id}>Villa {v.villaNo}</li>
+                ))}
+                {paidVillas.length === 0 && <li>None</li>}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-red-600 mb-2">❌ Villas Unpaid:</h4>
+              <ul className="list-disc pl-6">
+                {unpaidVillas.map((v) => (
+                  <li key={v.id}>Villa {v.villaNo}</li>
+                ))}
+                {unpaidVillas.length === 0 && <li>None</li>}
+              </ul>
+            </div>
+          </div>
         </div>
       )}
 

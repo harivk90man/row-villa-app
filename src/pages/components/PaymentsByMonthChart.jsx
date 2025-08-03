@@ -18,7 +18,7 @@ const monthNames = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-const PaymentsByMonthChart = ({ payments, villas }) => {
+const PaymentsByMonthChart = ({ payments, villas, onMonthClick }) => {
   const [data, setData] = useState([]);
   const [selectedYear] = useState(new Date().getFullYear());
   const [paidVillas, setPaidVillas] = useState([]);
@@ -50,8 +50,13 @@ const PaymentsByMonthChart = ({ payments, villas }) => {
     const clickedMonth = monthNames.indexOf(entry.name) + 1;
     const monthStr = `${selectedYear}-${clickedMonth.toString().padStart(2, '0')}`;
 
-    const filtered = payments.filter(p => p.month === monthStr);
+    // Call external callback if provided
+    if (onMonthClick) {
+      onMonthClick(monthStr);
+    }
 
+    // For local villa display
+    const filtered = payments.filter(p => p.month === monthStr);
     const villaNumbers = filtered.map(p => {
       const match = villas.find(v => v.id === p.villa_id);
       return match ? match.villaNo : p.villa_id;
