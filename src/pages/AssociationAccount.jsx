@@ -13,6 +13,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { format } from 'date-fns';
 
 const COLORS = ['#00C49F', '#FF8042'];
 
@@ -20,7 +21,7 @@ const AssociationAccount = () => {
   const [income, setIncome] = useState(0);
   const [expenses, setExpenses] = useState([]);
   const [payments, setPayments] = useState([]);
-  const [newExpense, setNewExpense] = useState({ title: '', amount: '', month: '' });
+  const [newExpense, setNewExpense] = useState({ title: '', amount: '' });
   const boardAccess = isBoardMember();
 
   useEffect(() => {
@@ -39,7 +40,7 @@ const AssociationAccount = () => {
 
   const handleAddExpense = async () => {
     const now = new Date();
-    const selectedMonth = newExpense.month || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
     const {
       data: { user },
@@ -56,13 +57,13 @@ const AssociationAccount = () => {
         title: newExpense.title,
         amount: newExpense.amount,
         date: now.toISOString().split('T')[0],
-        month: selectedMonth,
+        month,
         added_by: user.email,
       },
     ]);
 
     if (!error) {
-      setNewExpense({ title: '', amount: '', month: '' });
+      setNewExpense({ title: '', amount: '' });
       fetchData();
     }
   };
@@ -108,6 +109,13 @@ const AssociationAccount = () => {
     { name: 'Expenses', value: totalExpense },
   ];
 
+  const groupedExpenses = expenses.reduce((acc, expense) => {
+    const monthKey = expense.month;
+    if (!acc[monthKey]) acc[monthKey] = [];
+    acc[monthKey].push(expense);
+    return acc;
+  }, {});
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h2 className="text-2xl font-bold mb-4 text-purple-700">Association Account Summary</h2>
@@ -120,7 +128,7 @@ const AssociationAccount = () => {
       {boardAccess && (
         <div className="mb-8">
           <h3 className="text-xl font-semibold mb-2">Add Expense</h3>
-          <div className="flex gap-2 mb-2 flex-wrap">
+          <div className="flex gap-2 mb-2">
             <input
               className="border p-2 flex-1"
               placeholder="Expense Title"
@@ -134,12 +142,6 @@ const AssociationAccount = () => {
               value={newExpense.amount}
               onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
             />
-            <input
-              className="border p-2 w-40"
-              type="month"
-              value={newExpense.month}
-              onChange={(e) => setNewExpense({ ...newExpense, month: e.target.value })}
-            />
             <button className="bg-purple-600 text-white px-4 py-2 rounded" onClick={handleAddExpense}>Add</button>
           </div>
         </div>
@@ -148,20 +150,26 @@ const AssociationAccount = () => {
       <div className="mb-8">
         <h3 className="text-xl font-semibold mb-2">All Expenses</h3>
         <ul className="bg-white p-4 rounded shadow">
-          {expenses.length === 0 ? (
-            <p>No expenses added yet.</p>
-          ) : (
-            expenses.map((e) => (
-              <li key={e.id} className="mb-1 flex justify-between items-center">
-                <div>
-                  {e.date}: ₹{e.amount} - {e.title} <span className="text-sm text-gray-500">({e.added_by})</span>
-                </div>
-                {boardAccess && (
-                  <button onClick={() => handleDeleteExpense(e.id)} className="text-red-600 text-sm ml-4">Delete</button>
-                )}
-              </li>
-            ))
-          )}
+          {Object.keys(groupedExpenses).sort().reverse().map((monthKey) => {
+            const monthName = format(new Date(monthKey + '-01'), 'MMMM yyyy');
+            return (
+              <div key={monthKey} className="mb-4">
+                <h4 className="text-lg font-semibold text-purple-700">{monthName}</h4>
+                <ul>
+                  {groupedExpenses[monthKey].map((e) => (
+                    <li key={e.id} className="mb-1 flex justify-between items-center">
+                      <div>
+                        {e.date}: ₹{e.amount} - {e.title} <span className="text-sm text-gray-500">({e.added_by})</span>
+                      </div>
+                      {boardAccess && (
+                        <button onClick={() => handleDeleteExpense(e.id)} className="text-red-600 text-sm ml-4">Delete</button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </ul>
       </div>
 
